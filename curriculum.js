@@ -32,7 +32,7 @@ window.CURRICULUM = [
       { text: "Launch Claude Code with the <code>claude</code> command and read the welcome screen.", link: DOC + "quickstart" },
       { text: "Run a one-off task with <code>claude -p \"summarize the files in this folder\"</code> and watch it exit without a session.", link: DOC + "headless" },
       { text: "Confirm which shell Claude Code is using by asking it to run <code>echo $SHELL</code> (or check the welcome screen).", link: DOC + "setup" },
-      { text: "<b>Capstone kickoff:</b> pick a small, real project you'd actually like (a CLI tool, a webpage, a script you keep meaning to write). Make an empty folder, run <code>claude</code> inside it, and ask Claude to scaffold a starter file.", link: DOC + "quickstart", capstone: true }
+      { text: "<b>Capstone kickoff:</b> pick one small, real project to build across all 18 days &mdash; then make an empty folder, run <code>claude</code> inside it, and ask Claude to scaffold a starter file. <b>Need ideas?</b> A <b>weekly report generator</b> that turns a folder of notes into a one-page summary; a <b>CSV cleaner</b> that tidies a messy export and flags outliers; a <b>personal dashboard</b> webpage of the links and checklists you use daily; a <b>file organizer</b> that sorts and renames a downloads folder by your rules; a <b>meeting-prep brief</b> that pulls notes plus an agenda into one page; or a searchable <b>team FAQ page</b>.", link: DOC + "quickstart", capstone: true }
     ]
   },
   {
