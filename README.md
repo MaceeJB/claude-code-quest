@@ -58,8 +58,9 @@ everything at once. Two tools help:
   the live site — it only affects your own view. (Console equivalents also exist:
   `CCQ.previewAll()`, `CCQ.previewOff()`, and `CCQ.preview(n)` to jump to one day.)
 - **Suggest an improvement** — at the bottom of each day's results screen there's a
-  "💡 Suggest an improvement for this day" link that opens a pre-filled GitHub issue
-  for that specific day. Good for flagging changes without editing code directly.
+  "💡 Suggest an improvement for this day" link that opens a pre-filled email (to the
+  address set in `app.js`, currently `MaceeJB@gmail.com`) with the day number already
+  in the subject. No GitHub account needed — participants just hit send.
 
 ## Customizing the content
 

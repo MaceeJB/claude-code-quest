@@ -364,13 +364,14 @@
       badgeBox.appendChild(el("div", "step-label", "New badge" + (r.newBadges.length > 1 ? "s" : "") + " unlocked!"));
       r.newBadges.forEach(function (b) { badgeBox.appendChild(el("span", "results-badge", b.emoji + " " + b.name)); });
     }
-    // per-day "Suggest an improvement" link → pre-filled GitHub issue
+    // per-day "Suggest an improvement" link → pre-filled email
     var d = CURRICULUM[session.day - 1];
-    var repo = "https://github.com/MaceeJB/claude-quest";
-    var title = "Day " + d.day + " (" + d.title + "): suggestion";
-    var body = "**Day " + d.day + " — " + d.title + "**\n\n" +
+    var feedbackEmail = "MaceeJB@gmail.com";
+    var subject = "Claude Quest — Day " + d.day + " (" + d.title + "): feedback";
+    var body = "Day " + d.day + " — " + d.title + "\n\n" +
       "What would you improve? (lesson, quiz, a hands-on task, the capstone, or anything else)\n\n";
-    $("results-suggest").href = repo + "/issues/new?title=" + encodeURIComponent(title) + "&body=" + encodeURIComponent(body);
+    $("results-suggest").href = "mailto:" + feedbackEmail +
+      "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
 
     // fun productivity tip in a purple bubble, tagged with its Claude surface
     var tip = TIPS[Math.floor(Math.random() * TIPS.length)];
