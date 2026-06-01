@@ -340,6 +340,39 @@
     { surface: "Code", text: "Run a one-off chore with <code>claude -p \"clean up this CSV\"</code> without starting a whole session." }
   ];
 
+  // "If your quiz performance was an '80s singer..." — graded on first-try accuracy.
+  // Kept playful and kind; even the bottom tier is encouraging, not a roast.
+  var SINGERS = [
+    { min: 1.00, picks: [
+      "🎤 Michael Jackson — you moonwalked through that quiz without a single stumble.",
+      "👑 Prince — pure genius, made every answer look effortless.",
+      "🎶 Whitney Houston — every note pitch-perfect. Flawless." ] },
+    { min: 0.75, picks: [
+      "💃 Madonna — struck a pose and basically owned it.",
+      "🕶️ George Michael — smooth and confident, faith in nearly every answer.",
+      "🎸 Tina Turner — simply the best, give or take one little wobble." ] },
+    { min: 0.50, picks: [
+      "🌈 Cyndi Lauper — you just wanna have fun, and you did just fine.",
+      "🥁 Phil Collins — felt it coming in the air tonight, and you landed it.",
+      "🎹 Lionel Richie — easy like Sunday morning, a nice steady set." ] },
+    { min: 0.25, picks: [
+      "🎵 Rick Astley — never gonna give you up; you pushed right through.",
+      "🌙 Bonnie Tyler — turned around a few times, but you made it.",
+      "🎷 Wham! — wake me up before you go-go back over those misses." ] },
+    { min: 0.00, picks: [
+      "🎤 Milli Vanilli — hey, you showed up and looked great. Encore time — give it another take!",
+      "📼 One-hit-wonder energy — today was the warm-up. The replay is your comeback tour." ] }
+  ];
+  function singerVerdict(ratio) {
+    for (var i = 0; i < SINGERS.length; i++) {
+      if (ratio >= SINGERS[i].min) {
+        var picks = SINGERS[i].picks;
+        return picks[Math.floor(Math.random() * picks.length)];
+      }
+    }
+    return SINGERS[SINGERS.length - 1].picks[0];
+  }
+
   function showResults(r) {
     $("results-emoji").innerHTML = r.replay ? "📖" : (r.perfect ? "🎯" : "🎉");
     $("results-title").textContent = r.replay ? "Review complete" : "Day complete!";
@@ -364,8 +397,14 @@
       badgeBox.appendChild(el("div", "step-label", "New badge" + (r.newBadges.length > 1 ? "s" : "") + " unlocked!"));
       r.newBadges.forEach(function (b) { badgeBox.appendChild(el("span", "results-badge", b.emoji + " " + b.name)); });
     }
-    // per-day "Suggest an improvement" link → pre-filled email
+    // "If your quiz performance was an '80s singer..." verdict
     var d = CURRICULUM[session.day - 1];
+    var nQ = d.quiz.length;
+    var firstTry = nQ > 0 ? (r.quiz / POINTS_AFTER_MISS - nQ) : 0; // quizPoints = 10a + 5b, N=a+b → a = pts/5 - N
+    var accuracy = nQ > 0 ? Math.max(0, Math.min(1, firstTry / nQ)) : 0;
+    $("results-singer").innerHTML = "<span class=\"sv-label\">If your quiz was an '80s singer…</span>" +
+      "<span class=\"sv-text\">" + singerVerdict(accuracy) + "</span>";
+
     var feedbackEmail = "MaceeJB@gmail.com";
     var subject = "Claude Quest — Day " + d.day + " (" + d.title + "): feedback";
     var body = "Day " + d.day + " — " + d.title + "\n\n" +
