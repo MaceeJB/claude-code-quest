@@ -270,14 +270,6 @@
       }
       list.appendChild(row);
     });
-
-    // per-day "Suggest an improvement" link → pre-filled GitHub issue
-    var repo = "https://github.com/MaceeJB/claude-code-quest";
-    var title = "Day " + d.day + " (" + d.title + "): suggestion";
-    var body = "**Day " + d.day + " — " + d.title + "**\n\n" +
-      "What would you improve? (lesson, quiz, a hands-on task, the capstone, or anything else)\n\n";
-    $("challenge-suggest").href = repo + "/issues/new?title=" + encodeURIComponent(title) + "&body=" + encodeURIComponent(body);
-
     $("challenge-finish").onclick = finishDay;
   }
 
@@ -347,6 +339,14 @@
       badgeBox.appendChild(el("div", "step-label", "New badge" + (r.newBadges.length > 1 ? "s" : "") + " unlocked!"));
       r.newBadges.forEach(function (b) { badgeBox.appendChild(el("span", "results-badge", b.emoji + " " + b.name)); });
     }
+    // per-day "Suggest an improvement" link → pre-filled GitHub issue
+    var d = CURRICULUM[session.day - 1];
+    var repo = "https://github.com/MaceeJB/claude-code-quest";
+    var title = "Day " + d.day + " (" + d.title + "): suggestion";
+    var body = "**Day " + d.day + " — " + d.title + "**\n\n" +
+      "What would you improve? (lesson, quiz, a hands-on task, the capstone, or anything else)\n\n";
+    $("results-suggest").href = repo + "/issues/new?title=" + encodeURIComponent(title) + "&body=" + encodeURIComponent(body);
+
     $("results-home").onclick = function () { renderHome(); show("screen-home"); };
     show("screen-results");
   }
