@@ -270,6 +270,14 @@
       }
       list.appendChild(row);
     });
+
+    // per-day "Suggest an improvement" link → pre-filled GitHub issue
+    var repo = "https://github.com/MaceeJB/claude-code-quest";
+    var title = "Day " + d.day + " (" + d.title + "): suggestion";
+    var body = "**Day " + d.day + " — " + d.title + "**\n\n" +
+      "What would you improve? (lesson, quiz, a hands-on task, the capstone, or anything else)\n\n";
+    $("challenge-suggest").href = repo + "/issues/new?title=" + encodeURIComponent(title) + "&body=" + encodeURIComponent(body);
+
     $("challenge-finish").onclick = finishDay;
   }
 
