@@ -315,20 +315,21 @@
   }
 
   // ================= RESULTS =================
-  // Fun, non-coder productivity tips for Claude (chat, cowork, or code).
+  // Fun, non-coder productivity tips, each tagged with the Claude surface
+  // (Chat, Cowork, or Code) where it works best.
   var TIPS = [
-    "Paste a messy email thread and ask “what do I actually need to do here?” to get a clean action list.",
-    "Before a meeting, drop in your notes and ask Claude for three sharp questions to bring.",
-    "Turn a wall of text into a to-do list: “give me this as a checklist I can actually follow.”",
-    "After any plan, ask “what am I missing?” — Claude is great at catching the obvious gap.",
-    "Stuck on a blank page? Ask for “five rough first drafts, one sentence each” and pick a direction.",
-    "Feed Claude a screenshot and ask it to pull the numbers or dates into a clean table.",
-    "End a request with “explain it like I'm new to this” to skip the jargon.",
-    "Before sending an important message, ask Claude to “play devil's advocate.”",
-    "Save the prompts you reuse in a notes file so you're not rewriting instructions every day.",
-    "After a long chat, ask “summarize the decisions we made” so you have a paper trail.",
-    "Paste something you wrote and ask Claude to match your tone on the next draft.",
-    "Batch your small questions into one message — it's faster than asking one at a time."
+    { surface: "Chat", text: "Paste a messy email thread and ask “what do I actually need to do here?” for a clean action list." },
+    { surface: "Chat", text: "Before a meeting, drop in your notes and ask Claude for three sharp questions to bring." },
+    { surface: "Chat", text: "Stuck on a blank page? Ask for “five rough first drafts, one sentence each” and pick a direction." },
+    { surface: "Chat", text: "Before sending an important message, ask Claude to “play devil's advocate.”" },
+    { surface: "Chat", text: "Feed Claude a screenshot and ask it to pull the numbers or dates into a clean table." },
+    { surface: "Cowork", text: "Kicking off a project? Ask Claude to break it into a step-by-step plan, then work the steps together." },
+    { surface: "Cowork", text: "After mapping out a plan, ask “what am I missing?” — Claude is great at catching the obvious gap." },
+    { surface: "Cowork", text: "At the end of a work session, ask Claude to summarize the decisions you made so you have a paper trail." },
+    { surface: "Cowork", text: "Hand Claude a folder of reports and ask for a one-page summary you can forward to your boss." },
+    { surface: "Code", text: "Save the instructions you repeat into a CLAUDE.md file so Claude remembers them every session." },
+    { surface: "Code", text: "Ask Claude Code to rename or reorganize a messy folder of files in one go — then review before approving." },
+    { surface: "Code", text: "Run a one-off chore with <code>claude -p \"clean up this CSV\"</code> without starting a whole session." }
   ];
 
   function showResults(r) {
@@ -363,8 +364,11 @@
       "What would you improve? (lesson, quiz, a hands-on task, the capstone, or anything else)\n\n";
     $("results-suggest").href = repo + "/issues/new?title=" + encodeURIComponent(title) + "&body=" + encodeURIComponent(body);
 
-    // fun productivity tip in a purple bubble
-    $("results-tip-text").textContent = TIPS[Math.floor(Math.random() * TIPS.length)];
+    // fun productivity tip in a purple bubble, tagged with its Claude surface
+    var tip = TIPS[Math.floor(Math.random() * TIPS.length)];
+    $("results-tip-surface").textContent = tip.surface;
+    $("results-tip-surface").className = "tip-surface surface-" + tip.surface.toLowerCase();
+    $("results-tip-text").innerHTML = tip.text;
 
     $("results-home").onclick = function () { renderHome(); show("screen-home"); };
     show("screen-results");
