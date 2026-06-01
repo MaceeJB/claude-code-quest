@@ -1,0 +1,10 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.log
+
+# local preview/test server (not part of the app)
+.preview-server.ps1

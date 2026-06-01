@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Code Quest</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ===== Profile gate ===== -->
+    <section id="screen-profile" class="screen">
+      <div class="card center">
+        <h1 class="logo">Claude Code Quest</h1>
+        <p class="tagline">Learn Claude Code in 15 minutes a day. Build a streak. Level up your team.</p>
+        <label for="profile-name" class="field-label">Pick a player name to track your progress</label>
+        <input id="profile-name" type="text" maxlength="24" placeholder="e.g. Macee" autocomplete="off" />
+        <button id="profile-start" class="btn btn-primary">Start questing</button>
+        <p id="profile-existing" class="muted small"></p>
+      </div>
+    </section>
+
+    <!-- ===== Home / dashboard ===== -->
+    <section id="screen-home" class="screen hidden">
+      <header class="topbar">
+        <span class="logo small">Claude Code Quest</span>
+        <div class="topbar-right">
+          <span id="home-player" class="player-chip"></span>
+          <button id="switch-profile" class="btn btn-ghost small">Switch player</button>
+        </div>
+      </header>
+
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-value" id="stat-points">0</div>
+          <div class="stat-label">Total points</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value"><span id="stat-streak">0</span><span class="flame" id="streak-flame">&#128293;</span></div>
+          <div class="stat-label">Day streak</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-longest">0</div>
+          <div class="stat-label">Longest streak</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-progress">0/18</div>
+          <div class="stat-label">Days complete</div>
+        </div>
+      </div>
+
+      <div id="today-cta" class="card cta"></div>
+
+      <h2 class="section-heading">Your 18-day quest</h2>
+      <div id="day-grid" class="day-grid"></div>
+
+      <h2 class="section-heading">Badges</h2>
+      <div id="badge-shelf" class="badge-shelf"></div>
+
+      <footer class="foot muted small">
+        Progress is saved privately in this browser. One new day unlocks every calendar day.
+      </footer>
+    </section>
+
+    <!-- ===== Lesson ===== -->
+    <section id="screen-lesson" class="screen hidden">
+      <header class="topbar">
+        <button class="btn btn-ghost small back-home">&larr; Home</button>
+        <span id="lesson-daytag" class="player-chip"></span>
+      </header>
+      <div class="card">
+        <div class="step-label">Step 1 of 3 &middot; Lesson</div>
+        <h1 id="lesson-title"></h1>
+        <div id="lesson-cards"></div>
+        <button id="lesson-next" class="btn btn-primary">Start the quiz &rarr;</button>
+      </div>
+    </section>
+
+    <!-- ===== Quiz ===== -->
+    <section id="screen-quiz" class="screen hidden">
+      <header class="topbar">
+        <button class="btn btn-ghost small back-home">&larr; Home</button>
+        <span id="quiz-daytag" class="player-chip"></span>
+      </header>
+      <div class="card">
+        <div class="step-label">Step 2 of 3 &middot; Quiz</div>
+        <div class="quiz-progress"><div id="quiz-bar" class="quiz-bar"></div></div>
+        <div id="quiz-counter" class="muted small"></div>
+        <h2 id="quiz-question"></h2>
+        <div id="quiz-options" class="options"></div>
+        <div id="quiz-feedback" class="feedback hidden"></div>
+        <button id="quiz-next" class="btn btn-primary hidden">Next &rarr;</button>
+      </div>
+    </section>
+
+    <!-- ===== Challenge ===== -->
+    <section id="screen-challenge" class="screen hidden">
+      <header class="topbar">
+        <button class="btn btn-ghost small back-home">&larr; Home</button>
+        <span id="challenge-daytag" class="player-chip"></span>
+      </header>
+      <div class="card">
+        <div class="step-label">Step 3 of 3 &middot; Hands-on</div>
+        <h2>Try it in Claude Code</h2>
+        <p class="muted">Check off each task as you do it for real. Honor system &mdash; you earn points for practicing.</p>
+        <div id="challenge-list" class="challenge-list"></div>
+        <button id="challenge-finish" class="btn btn-primary">Finish today &rarr;</button>
+      </div>
+    </section>
+
+    <!-- ===== Results ===== -->
+    <section id="screen-results" class="screen hidden">
+      <div class="card center">
+        <div id="results-emoji" class="results-emoji">&#127881;</div>
+        <h1 id="results-title">Day complete!</h1>
+        <div id="results-breakdown" class="breakdown"></div>
+        <div id="results-badges" class="results-badges"></div>
+        <button id="results-home" class="btn btn-primary">Back to home</button>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="curriculum.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
