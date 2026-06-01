@@ -5,9 +5,9 @@
   --border: #2a2f45;
   --text: #e7e9f2;
   --muted: #9aa0bd;
-  --primary: #c96f4a;       /* Claude-ish warm clay */
-  --primary-hi: #e0855e;
-  --accent: #7c93ff;
+  --primary: #8b5cf6;       /* team purple */
+  --primary-hi: #a78bfa;
+  --accent: #c4b5fd;
   --good: #46c08a;
   --bad: #e2655f;
   --gold: #f5c451;
@@ -19,7 +19,7 @@
 
 html, body {
   margin: 0;
-  background: radial-gradient(1200px 600px at 50% -10%, #1b2030 0%, var(--bg) 60%);
+  background: radial-gradient(1200px 600px at 50% -10%, #241a3a 0%, var(--bg) 60%);
   color: var(--text);
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.55;
@@ -62,7 +62,7 @@ h2 { font-size: 1.25rem; margin: .2em 0 .5em; }
   transition: transform .08s ease, background .15s ease, opacity .15s;
 }
 .btn:active { transform: translateY(1px); }
-.btn-primary { background: linear-gradient(180deg, var(--primary-hi), var(--primary)); color: #1a0f08; }
+.btn-primary { background: linear-gradient(180deg, var(--primary-hi), var(--primary)); color: #fff; }
 .btn-primary:hover { filter: brightness(1.06); }
 .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
 .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
@@ -156,7 +156,7 @@ code { background: #0c0e16; border: 1px solid var(--border); border-radius: 5px;
 
 /* per-task "Learn how →" help link */
 .ci-link { align-self: flex-start; margin-left: 30px; font-size: .82rem; font-weight: 600; color: var(--accent); text-decoration: none; border-bottom: 1px dotted color-mix(in srgb, var(--accent) 60%, transparent); }
-.ci-link:hover { color: #a3b4ff; }
+.ci-link:hover { color: #d6c9ff; }
 
 /* capstone task — the one real project carried across all 18 days */
 .challenge-item.capstone { border-color: color-mix(in srgb, var(--gold) 55%, var(--border)); background: linear-gradient(180deg, rgba(245,196,81,.08), var(--bg-elev-2)); }
