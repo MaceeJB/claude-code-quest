@@ -33,7 +33,7 @@ This repo is a static site, so GitHub Pages serves it directly from the default 
 
 1. Push this folder to a GitHub repo.
 2. In the repo: **Settings → Pages → Build and deployment → Deploy from a branch**, select `main` and `/ (root)`.
-3. Share the URL: `https://<your-username>.github.io/claude-code-quest/`.
+3. Share the URL: `https://<your-username>.github.io/claude-quest/`.
 
 Everyone visits the URL and starts their own streak.
 
