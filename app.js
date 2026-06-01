@@ -1,4 +1,4 @@
-/* Claude Code Quest — game logic (vanilla JS, no dependencies). */
+/* Claude Quest — game logic (vanilla JS, no dependencies). */
 (function () {
   "use strict";
 

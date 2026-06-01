@@ -1,4 +1,4 @@
-# Claude Code Quest
+# Claude Quest
 
 A small, zero-dependency game that teaches your team **Claude Code** in ~15 minutes a day.
 One curated topic per day for 18 days, beginner → advanced. You score points for quiz

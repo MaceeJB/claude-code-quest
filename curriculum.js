@@ -1,4 +1,4 @@
-/* Claude Code Quest — curriculum data.
+/* Claude Quest — curriculum data.
  * Defined as a plain global so the app works from file:// and from GitHub Pages
  * without any fetch/CORS. Each day: { day, title, section, lesson[], quiz[], challenge[] }.
  * quiz[].answer is the 0-based index of the correct option.

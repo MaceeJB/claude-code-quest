@@ -1,4 +1,4 @@
-# Contributing to Claude Code Quest
+# Contributing to Claude Quest
 
 This app's content lives in plain files — **you don't need to be a developer** to
 improve it. The most common change is editing a lesson, quiz, or challenge, and all
