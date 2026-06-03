@@ -73,13 +73,62 @@
     var da = new Date(pa[0], pa[1] - 1, pa[2]), db = new Date(pb[0], pb[1] - 1, pb[2]);
     return Math.round((db - da) / 86400000);
   }
+  function dayOfWeek(str) { // 0 = Sun … 6 = Sat
+    var p = str.split("-").map(Number);
+    return new Date(p[0], p[1] - 1, p[2]).getDay();
+  }
+  // ---- rest days ----
+  // The course is a weekday cohort: weekends never count against a streak and are
+  // skipped when measuring pace. REST_HOLIDAYS lists extra weekdays the whole team
+  // is off, so they behave like weekends too (no missed-day penalty, not counted in
+  // the daily pace). Add or remove dates here as the team's calendar changes.
+  var REST_HOLIDAYS = ["2026-06-19", "2026-07-03"]; // Juneteenth, observed July 4th
+  function isRestDay(str) {
+    var d = dayOfWeek(str);
+    if (d === 0 || d === 6) return true; // Sat / Sun
+    return REST_HOLIDAYS.indexOf(str) !== -1;
+  }
+  // The most recent active (non-rest) day strictly before `str`.
+  function prevActiveDay(str) {
+    var cur = addDays(str, -1);
+    while (isRestDay(cur)) cur = addDays(cur, -1);
+    return cur;
+  }
+  // The next active (non-rest) day strictly after `str`.
+  function nextActiveDay(str) {
+    var cur = addDays(str, 1);
+    while (isRestDay(cur)) cur = addDays(cur, 1);
+    return cur;
+  }
+  // Active days in the inclusive range start…end (0 if end is before start).
+  function activeDaysInclusive(start, end) {
+    if (daysBetween(start, end) < 0) return 0;
+    var n = 0, cur = start;
+    while (true) {
+      if (!isRestDay(cur)) n++;
+      if (cur === end) break;
+      cur = addDays(cur, 1);
+    }
+    return n;
+  }
+  // Active days strictly between a and b (exclusive of both). 0 when adjacent/inverted.
+  function activeDaysBetweenExclusive(a, b) {
+    if (daysBetween(a, b) <= 1) return 0;
+    var n = 0, cur = addDays(a, 1);
+    while (cur !== b) {
+      if (!isRestDay(cur)) n++;
+      cur = addDays(cur, 1);
+    }
+    return n;
+  }
 
   // ---- pacing ----
-  // The course is paced at one lesson per calendar day, anchored to the day each
-  // player first completed a lesson (state.startDate). Teammates may run up to
-  // LEAD_DAYS ahead of that pace, and may do several lessons in one sitting to
-  // catch up if they've fallen behind. A weekly "streak freeze" forgives one
-  // missed day so a single skip doesn't reset a long streak.
+  // The course is paced at one lesson per *active* day (weekdays minus team
+  // holidays), anchored to the day each player first completed a lesson
+  // (state.startDate). Teammates may run up to LEAD_DAYS ahead of that pace, and
+  // may do several lessons in one sitting to catch up if they've fallen behind. A
+  // weekly "streak freeze" forgives one missed active day so a single skip doesn't
+  // reset a long streak.
   var LEAD_DAYS = 2;        // how far ahead of the daily pace you may work
   var FREEZE_COOLDOWN = 7;  // a streak freeze refills this many days after use
 
@@ -145,11 +194,13 @@
   function nextDayNumber(s) { return Math.min(completedCount(s) + 1, TOTAL_DAYS); }
   function playedToday(s) { return s.lastCompletedDate === today(); }
 
-  // The lesson number this player "should" be on at one-per-day, measured from the
-  // day they started. Before their first lesson, that's day 1.
+  // The lesson number this player "should" be on at one-per-active-day, measured
+  // from the day they started. Weekends and team holidays don't advance the pace,
+  // so a player who only ever plays weekdays stays exactly on schedule. Before
+  // their first lesson, that's day 1.
   function scheduledDay(s) {
     if (!s.startDate) return 1;
-    return Math.min(daysBetween(s.startDate, today()) + 1, TOTAL_DAYS);
+    return Math.min(Math.max(1, activeDaysInclusive(s.startDate, today())), TOTAL_DAYS);
   }
   // The furthest day currently unlocked: today's paced lesson plus the lead window.
   function maxUnlockedDay(s) { return Math.min(scheduledDay(s) + LEAD_DAYS, TOTAL_DAYS); }
@@ -172,18 +223,21 @@
     return Math.max(0, FREEZE_COOLDOWN - daysBetween(s.freezeUsedDate, today()));
   }
 
-  // Reconcile the live streak on load. A single missed day is automatically
-  // covered by a streak freeze (if one is available); a longer gap breaks it.
+  // Reconcile the live streak on load. Weekends and team holidays are free, so the
+  // streak only breaks when an *active* day passes unplayed. A single missed active
+  // day is automatically covered by a streak freeze (if one is available); a longer
+  // gap breaks it.
   function reconcileStreak() {
     var last = state.lastCompletedDate;
     if (!last) return;
     var t = today();
-    if (last === t || last === addDays(t, -1)) return; // streak still alive
-    var missed = daysBetween(last, t) - 1;             // fully-skipped calendar days
+    if (last === t) return;
+    var missed = activeDaysBetweenExclusive(last, t); // active days skipped since last play
+    if (missed === 0) return;                          // no weekday passed → streak alive
     if (missed === 1 && state.currentStreak > 0 && freezeAvailable(state)) {
-      // Spend a freeze: treat yesterday as covered so the chain stays unbroken.
+      // Spend a freeze: treat the last active day as covered so the chain holds.
       state.freezeUsedDate = t;
-      state.lastCompletedDate = addDays(t, -1);
+      state.lastCompletedDate = prevActiveDay(t);
       state.freezeJustUsed = true; // surfaced once on the home screen
       save();
     } else if (state.currentStreak !== 0) {
@@ -410,11 +464,13 @@
     } else {
       cta.appendChild(el("h2", null, "✅ You're all set for today!"));
       var lead = done - sched; // how many days ahead of pace
+      // "tomorrow" unless the next lesson day lands after a weekend/holiday.
+      var soon = nextActiveDay(today()) === addDays(today(), 1) ? "tomorrow" : "your next weekday";
       var msg = lead >= LEAD_DAYS
-        ? "You're " + LEAD_DAYS + " days ahead — as far as the pace allows. Come back tomorrow to keep going and protect your streak."
+        ? "You're " + LEAD_DAYS + " days ahead — as far as the pace allows. Come back " + soon + " to keep going and protect your streak."
         : (state.currentStreak > 1
-          ? "You're on a " + state.currentStreak + "-day streak. Come back tomorrow to keep it alive!"
-          : "Come back tomorrow for the next lesson and start building a streak.");
+          ? "You're on a " + state.currentStreak + "-day streak. Come back " + soon + " to keep it alive! Weekends are free — they won't break it."
+          : "Come back " + soon + " for the next lesson and start building a streak.");
       cta.appendChild(el("p", "muted", msg));
     }
 
@@ -611,13 +667,15 @@
     var last = state.lastCompletedDate;
     if (last === t) {
       // already showed up today (extra lesson worked ahead / caught up) — streak unchanged
-    } else if (!last || last === addDays(t, -1)) {
-      state.currentStreak = last ? state.currentStreak + 1 : 1;
+    } else if (!last) {
+      state.currentStreak = 1;
     } else {
-      // there's a gap since the last lesson
-      var missed = daysBetween(last, t) - 1;
-      if (missed === 1 && state.currentStreak > 0 && freezeAvailable(state)) {
-        state.freezeUsedDate = t;            // a freeze covers the one missed day
+      // count only active (non-weekend, non-holiday) days skipped since last play
+      var missed = activeDaysBetweenExclusive(last, t);
+      if (missed === 0) {
+        state.currentStreak += 1;            // consecutive active day (weekends bridged)
+      } else if (missed === 1 && state.currentStreak > 0 && freezeAvailable(state)) {
+        state.freezeUsedDate = t;            // a freeze covers the one missed active day
         state.currentStreak += 1;
       } else {
         state.currentStreak = 1;             // streak broke — start fresh
