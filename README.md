@@ -20,8 +20,11 @@ so daily play compounds. Miss a day and the streak resets — your longest strea
 **One new day unlocks each calendar day.** Finished days can be replayed for review (no points).
 Earn **badges** for milestones (first day, 3/7/14-day streaks, flawless quizzes, finishing all 18).
 
-Progress is saved **per player, in your browser** (`localStorage`) — private, no account, no backend.
+Progress is saved **per player, in your browser** (`localStorage`) by default — private, no account.
 Each teammate just picks a player name. Sharing a machine? Use "Switch player".
+
+Players who want their progress to **follow them across devices** (laptop one day, phone the next)
+can instead **sign in with their email**. See [Cross-device sync](#cross-device-sync-supabase) below.
 
 ## Run it locally
 
@@ -37,13 +40,74 @@ This repo is a static site, so GitHub Pages serves it directly from the default 
 
 Everyone visits the URL and starts their own streak.
 
+## Cross-device sync (Supabase)
+
+By default the game stores progress in each browser's `localStorage`, so it can't follow a
+player from one device to another. The optional **email sign-in** fixes that: a teammate enters
+their email, clicks a one-time "magic link" we email them, and from then on their points, streak,
+and badges sync to every device they sign in on. There's still **no password** to manage and
+**no server for you to run** — a free hosted Supabase project does the storage and login.
+
+### How it works
+
+- The page loads the Supabase JS client from a CDN (`<script>` tag in `index.html`) and creates a
+  client using two **public** values near the top of `app.js`: `SUPABASE_URL` and `SUPABASE_KEY`.
+- Login uses Supabase's passwordless **magic link** (`signInWithOtp`). After clicking the email
+  link, the player lands back on the app already signed in and stays signed in on that device.
+- Each player's whole state object is stored as one row in a `progress` table, keyed to their
+  account id. **Row Level Security (RLS)** policies guarantee each person can only read/write
+  their own row — which is why the public key is safe to ship in the page.
+- `localStorage` is still used as an offline cache, and the first time someone signs in, any
+  progress already in that browser is **auto-imported** into their account so nothing is lost.
+- If the Supabase script ever fails to load, the app silently falls back to **local-only** mode —
+  the "Just play on this device" path always works.
+
+### Pointing it at a different Supabase project
+
+If you ever need to move this to a new Supabase project (new owner, new org, etc.):
+
+1. Create a project at [supabase.com](https://supabase.com), then in the **SQL Editor** run:
+
+   ```sql
+   create table if not exists public.progress (
+     user_id uuid primary key references auth.users(id) on delete cascade,
+     player_name text,
+     data jsonb not null default '{}'::jsonb,
+     updated_at timestamptz not null default now()
+   );
+
+   alter table public.progress enable row level security;
+
+   create policy "read own progress"   on public.progress
+     for select using (auth.uid() = user_id);
+   create policy "insert own progress" on public.progress
+     for insert with check (auth.uid() = user_id);
+   create policy "update own progress" on public.progress
+     for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+   ```
+
+2. In **Authentication → URL Configuration**, set the **Site URL** and add a **Redirect URL**
+   matching where the app is hosted (e.g. `https://maceejb.github.io/claude-quest/`). Magic-link
+   emails bounce to the wrong place without this.
+3. In **Project Settings → API Keys**, copy the **Project URL** and the **publishable key**
+   (`sb_publishable_…`, labeled "safe to share publicly"). Paste them into the `SUPABASE_URL`,
+   `SUPABASE_KEY`, and `REDIRECT_URL` constants at the top of `app.js`, then commit and push.
+
+> ⚠️ Only the **publishable** key belongs in the code. Never commit the **secret** key or the
+> database password — the app doesn't need them, and the RLS policies above are what actually
+> protect player data.
+
+> ℹ️ Supabase's built-in email sender has a modest rate limit on the free tier and its messages
+> sometimes land in spam. That's fine for a team signing in over a few days; if a whole team signs
+> up within the same few minutes, tell them to check their junk folder if the link is slow.
+
 ## Files
 
 | File | Purpose |
 | --- | --- |
 | `index.html` | App shell and screens |
 | `styles.css` | Theme, layout, badge/streak visuals |
-| `app.js` | Game logic: state, scoring, streaks, gating, achievements |
+| `app.js` | Game logic: state, scoring, streaks, gating, achievements, and cross-device sync |
 | `curriculum.js` | All 18 days of lessons, quizzes, and challenges |
 
 ## Reviewing the content (for maintainers)
