@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Claude Quest</title>
-  <link rel="stylesheet" href="styles.css?v=20260603g" />
+  <link rel="stylesheet" href="styles.css?v=20260603k" />
 </head>
 <body>
   <div id="app">
@@ -37,8 +37,8 @@
         <span class="logo small">Claude Quest</span>
         <div class="topbar-right">
           <span id="home-player" class="player-chip"></span>
-          <button id="share-progress" class="btn btn-ghost small" title="Copy a friendly status to paste in your team chat.">&#128226; Share</button>
-          <button id="preview-toggle" class="btn btn-ghost small" title="Unlock every day for content review — no points or streak changes.">Preview all days</button>
+          <button id="share-progress" class="btn btn-ghost small" title="Copy a friendly status to paste in your team chat."><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg> Share</button>
+          <button id="preview-toggle" class="btn btn-ghost small" title="Unlock every day for content review. No points or streak changes.">Preview all days</button>
           <button id="switch-profile" class="btn btn-ghost small">Switch player</button>
           <button id="sign-out" class="btn btn-ghost small hidden">Sign out</button>
         </div>
@@ -79,7 +79,7 @@
       <div id="badge-shelf" class="badge-shelf"></div>
 
       <footer class="foot muted small">
-        Progress is saved privately in this browser. The quest is paced at one lesson a weekday &mdash; weekends and holidays are free &mdash; and you can work a little ahead or catch up as you need.
+        Progress is saved privately in this browser. The quest is paced at one lesson a weekday; weekends and holidays are free, and you can work a little ahead or catch up as you need.
       </footer>
     </section>
 
@@ -90,7 +90,7 @@
         <span id="dd-daytag" class="player-chip"></span>
       </header>
       <div class="card">
-        <div class="step-label">&#128302; Go deeper &middot; optional</div>
+        <div class="step-label">Go deeper &middot; optional</div>
         <div id="dd-counter" class="muted small"></div>
         <div id="dd-body"></div>
         <button id="dd-action" class="btn btn-primary"></button>
@@ -137,7 +137,7 @@
       <div class="card">
         <div class="step-label">Step 3 of 3 &middot; Hands-on</div>
         <h2>Try it in Claude Code</h2>
-        <p class="muted">Check off each task as you do it for real &mdash; you earn points for practicing. Stuck on one? Use its <strong>Learn how &rarr;</strong> link. The <strong>Capstone</strong> task moves your current project forward.</p>
+        <p class="muted">Check off each task as you do it for real, and you earn points for practicing. Stuck on one? Use its <strong>Learn how &rarr;</strong> link. The <strong>Capstone</strong> task moves your current project forward.</p>
         <div id="challenge-project" class="project-banner hidden"></div>
         <div id="challenge-list" class="challenge-list"></div>
         <button id="challenge-finish" class="btn btn-primary">Finish today &rarr;</button>
@@ -150,7 +150,7 @@
         <button class="btn btn-ghost small back-home">&larr; Home</button>
       </header>
       <div class="card center">
-        <div id="results-emoji" class="results-emoji">&#127881;</div>
+        <div id="results-emoji" class="results-emoji"></div>
         <h1 id="results-title">Day complete!</h1>
         <div id="results-project" class="project-celebrate hidden"></div>
         <div id="results-breakdown" class="breakdown"></div>
@@ -158,18 +158,19 @@
         <div id="results-deepdive" class="results-deepdive"></div>
         <div id="results-tip" class="tip-bubble">
           <span class="tip-head">
-            <span class="tip-label">&#10024; Try this in Claude today</span>
+            <span class="tip-label">Try this in Claude today</span>
             <span id="results-tip-surface" class="tip-surface"></span>
           </span>
           <span id="results-tip-text" class="tip-text"></span>
         </div>
         <a class="headline-bubble" href="https://pod.link/1680633614" target="_blank" rel="noopener noreferrer">
-          <span class="headline-text">&#128240; Listen to Today's AI Daily Brief &rarr;</span>
+          <svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-7h1a2 2 0 0 1 2 2zM3 19a2 2 0 0 0 2 2h1v-7H5a2 2 0 0 0-2 2z"/></svg>
+          <span class="headline-text">Listen to today's AI Daily Brief</span>
         </a>
-        <button id="results-share" class="btn btn-ghost">&#128226; Share my progress</button>
+        <button id="results-share" class="btn btn-ghost"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg> Share my progress</button>
         <button id="results-home" class="btn btn-primary">Back to home</button>
         <p class="suggest-line">
-          <a id="results-suggest" class="suggest-link" target="_blank" rel="noopener noreferrer">&#128161; Suggest an improvement for this day &rarr;</a>
+          <a id="results-suggest" class="suggest-link" target="_blank" rel="noopener noreferrer">Suggest an improvement for this day</a>
         </p>
       </div>
     </section>
@@ -178,8 +179,8 @@
 
   <!-- Bump the ?v= token whenever curriculum.js / app.js / styles.css change so
        returning players never get a stale cached copy from GitHub Pages. -->
-  <script src="curriculum.js?v=20260603f"></script>
+  <script src="curriculum.js?v=20260603k"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=20260603g"></script>
+  <script src="app.js?v=20260603k"></script>
 </body>
 </html>

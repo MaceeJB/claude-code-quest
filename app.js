@@ -55,7 +55,7 @@
   // days; the final day of a block is its celebration.
   var PROJECTS = window.PROJECTS || [
     { id: 1, emoji: "📘", title: "Learn something new", tagline: "Have Claude build you a personal learning kit.", start: 1,  end: 6  },
-    { id: 2, emoji: "🛠️", title: "Build a work helper", tagline: "Create a small tool — connected to your real apps and data — that takes a repetitive task off your plate.", start: 7,  end: 12 },
+    { id: 2, emoji: "🛠️", title: "Build a work helper", tagline: "Create a small tool, connected to your real apps and data, that takes a repetitive task off your plate.", start: 7,  end: 12 },
     { id: 3, emoji: "🚀", title: "Automate & ship it",  tagline: "Plan it, automate it end to end, put it in git, and hand it to your team.", start: 13, end: 18 }
   ];
   // The project a given day belongs to, plus where the day sits within it.
@@ -280,9 +280,36 @@
   }
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
 
+  // Minimal single-stroke line icons (Feather-style), rendered with currentColor.
+  var ICON_PATHS = {
+    flame: '<path d="M12 3c2.5 3 4 5 4 8a4 4 0 0 1-8 0c0-1.5.6-2.6 1.3-3.4.2 1 .8 1.8 1.6 2.1C11 8.4 10.6 6 12 3z"/>',
+    share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>',
+    compass: '<circle cx="12" cy="12" r="9"/><polygon points="16.2 7.8 13.4 13.4 7.8 16.2 10.6 10.6 16.2 7.8"/>',
+    users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    award: '<circle cx="12" cy="8" r="6"/><path d="M8.2 13.5 7 22l5-3 5 3-1.2-8.5"/>',
+    bookOpen: '<path d="M2 4h6a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 4h-6a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H22z"/>',
+    check: '<path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><polyline points="22 4 12 14.5 9 11.5"/>',
+    target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/>',
+    book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+    tool: '<path d="M14.5 6.5a5 5 0 0 0 6 6l-7 7a2.1 2.1 0 0 1-3-3l7-7a5 5 0 0 0-6-6l3.2 3.2-1.8 1.8L9.7 5z"/>',
+    send: '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
+    bolt: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+    gem: '<polygon points="6 3 18 3 22 9 12 22 2 9 6 3"/><line x1="2" y1="9" x2="22" y2="9"/><polyline points="6 3 9 9 12 22 15 9 18 3"/>',
+    headphones: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-7h1a2 2 0 0 1 2 2zM3 19a2 2 0 0 0 2 2h1v-7H5a2 2 0 0 0-2 2z"/>',
+    sprout: '<path d="M7 20h10"/><path d="M12 20v-9"/><path d="M12 11C12 7 9 6 5 6c0 4 3 5 7 5z"/><path d="M12 13c0-3 2-4 6-4 0 3-3 4-6 4z"/>'
+  };
+  function icon(name) {
+    var p = ICON_PATHS[name]; if (!p) return "";
+    return '<svg class="icn" viewBox="0 0 24 24" aria-hidden="true">' + p + '</svg>';
+  }
+  // Which icon represents each badge / project.
+  var BADGE_ICON = { first_day: "sprout", streak_3: "flame", streak_7: "bolt", streak_14: "award", perfect_day: "target", perfect_5: "gem", all_18: "award", deep_5: "compass" };
+  function projectIcon(id) { return id === 1 ? "book" : id === 2 ? "tool" : "send"; }
+
   // Copy text to clipboard with a graceful fallback, and flash the button.
   function copyToClipboard(text, btn, restoreLabel) {
-    function done() { btn.textContent = "Copied! ✓"; btn.classList.add("copied"); setTimeout(function () { btn.textContent = restoreLabel; btn.classList.remove("copied"); }, 2200); }
+    var original = btn.innerHTML;
+    function done() { btn.textContent = "Copied"; btn.classList.add("copied"); setTimeout(function () { btn.innerHTML = original; btn.classList.remove("copied"); }, 2200); }
     function fallback() {
       var ta = document.createElement("textarea");
       ta.value = text; ta.setAttribute("readonly", "");
@@ -351,7 +378,7 @@
         $("auth-send").disabled = false;
         $("auth-msg").textContent = res.error
           ? "Couldn't send the link: " + res.error.message
-          : "Check your inbox — click the link in the email to sign in. (You can close this tab.)";
+          : "Check your inbox and click the link in the email to sign in. (You can close this tab.)";
       });
   }
 
@@ -420,9 +447,9 @@
     var done = completedCount(state);
     var streak = state.currentStreak;
     var head = (opts && opts.day)
-      ? "🚀 Just finished Day " + opts.day + (opts.dayTitle ? " (" + opts.dayTitle + ")" : "") + " of Claude Quest"
-      : "🚀 Leveling up with Claude Quest";
-    var streakBit = streak > 1 ? " — on a " + streak + "-day streak 🔥" : "";
+      ? "Just finished Day " + opts.day + (opts.dayTitle ? " (" + opts.dayTitle + ")" : "") + " of Claude Quest"
+      : "Making progress on Claude Quest";
+    var streakBit = streak > 1 ? ", on a " + streak + "-day streak" : "";
     var progressBit = " (" + done + "/" + TOTAL_DAYS + " days done)";
     return head + streakBit + progressBit + ". My AI floor is rising. Play along: " + url;
   }
@@ -445,13 +472,13 @@
       var max = players * TOTAL_DAYS;
       var pct = max > 0 ? Math.min(100, Math.round(lessons / max * 100)) : 0;
       box.innerHTML = "";
-      box.appendChild(el("div", "team-head", "🤝 Team progress"));
+      box.appendChild(el("div", "team-head", icon("users") + " Team progress"));
       var track = el("div", "team-bar");
       var fill = el("div", "team-bar-fill"); fill.style.width = pct + "%";
       track.appendChild(fill);
       box.appendChild(track);
       box.appendChild(el("div", "team-line", "<b>" + lessons + "</b> of " + max + " lessons completed together"));
-      box.appendChild(el("div", "team-line muted", "👋 " + playedToday + " of " + players + " teammate" + (players === 1 ? "" : "s") + " played today"));
+      box.appendChild(el("div", "team-line muted", playedToday + " of " + players + " teammate" + (players === 1 ? "" : "s") + " played today"));
       box.classList.remove("hidden");
     }, function () { box.classList.add("hidden"); });
   }
@@ -473,15 +500,15 @@
     } else if (left === 1) {
       box.classList.add("is-soon");
       var t1 = el("span", "bunker-text", "");
-      t1.innerHTML = "🚀 <strong>Tomorrow:</strong> the " + EVENT_NAME + ". You've trained for this!";
+      t1.innerHTML = "<strong>Tomorrow:</strong> the " + EVENT_NAME + ".";
       box.appendChild(t1);
     } else if (left >= -3) {
       // event day, or assume it runs a few days after
       box.classList.add("is-today");
       var t0 = el("span", "bunker-text", "");
       t0.innerHTML = left === 0
-        ? "🎉 Today's the day &mdash; welcome to the <strong>" + EVENT_NAME + "</strong>!"
-        : "🎉 The <strong>" + EVENT_NAME + "</strong> is happening now. Go get 'em!";
+        ? "Today: the <strong>" + EVENT_NAME + "</strong>."
+        : "The <strong>" + EVENT_NAME + "</strong> is happening now.";
       box.appendChild(t0);
     } else {
       box.classList.add("hidden"); // event has passed
@@ -508,7 +535,7 @@
       else status = "upcoming";
 
       var card = el("div", "project-card " + status);
-      card.appendChild(el("div", "pc-emoji", p.emoji));
+      card.appendChild(el("div", "pc-emoji", icon(projectIcon(p.id))));
       var body = el("div", "pc-body");
       var title = el("div", "pc-title"); title.textContent = "Project " + p.id + ": " + p.title;
       body.appendChild(title);
@@ -535,13 +562,13 @@
     // One-time notice when a freeze rescued the streak since the last visit.
     if (state.freezeJustUsed) {
       cta.appendChild(el("div", "freeze-note",
-        "❄️ A streak freeze saved your " + state.currentStreak + "-day streak — one missed day is on us."));
+        "A streak freeze saved your " + state.currentStreak + "-day streak. One missed day is on us."));
       delete state.freezeJustUsed; save();
     }
 
     var done = completedCount(state);
     if (done >= TOTAL_DAYS) {
-      cta.appendChild(el("h2", null, "🎊 You finished the quest!"));
+      cta.appendChild(el("h2", null, "You finished the quest."));
       cta.appendChild(el("p", "muted", "All 19 days complete. Replay any day to review, and keep using what you learned."));
       return;
     }
@@ -553,23 +580,23 @@
       var ahead = n > sched, behind = n < sched;
       cta.appendChild(el("div", "step-label", ahead ? "Working ahead" : (behind ? "Catch up" : "Today's lesson")));
       cta.appendChild(el("h2", null, "Day " + n + ": " + d.title));
-      cta.appendChild(el("p", "muted", d.lesson.length + " quick cards · " + d.quiz.length + " questions · " + d.challenge.length + " hands-on tasks — about 15 minutes."));
-      var btn = el("button", "btn btn-primary", "Start Day " + n + " →");
+      cta.appendChild(el("p", "muted", d.lesson.length + " cards · " + d.quiz.length + " questions · " + d.challenge.length + " hands-on tasks. About 15 minutes."));
+      var btn = el("button", "btn btn-primary", "Start Day " + n);
       btn.onclick = function () { beginDay(n, false); };
       cta.appendChild(btn);
       if (ahead) cta.appendChild(el("p", "cta-hint muted small",
-        "You're ahead of the daily pace — nice momentum. One lesson a day makes it stick best, but a little extra is welcome."));
+        "You're ahead of the daily pace. One lesson a day makes it stick best, but a little extra is welcome."));
       else if (behind) cta.appendChild(el("p", "cta-hint muted small",
-        "A little behind? No problem — you can do a few in a row to catch back up to today."));
+        "A little behind? You can do a few in a row to catch back up to today."));
     } else {
-      cta.appendChild(el("h2", null, "✅ You're all set for today!"));
+      cta.appendChild(el("h2", null, "You're all set for today."));
       var lead = done - sched; // how many days ahead of pace
       // "tomorrow" unless the next lesson day lands after a weekend/holiday.
       var soon = nextActiveDay(today()) === addDays(today(), 1) ? "tomorrow" : "your next weekday";
       var msg = lead >= LEAD_DAYS
-        ? "You're " + LEAD_DAYS + " days ahead — as far as the pace allows. Come back " + soon + " to keep going and protect your streak."
+        ? "You're " + LEAD_DAYS + " days ahead, as far as the pace allows. Come back " + soon + " to keep going and protect your streak."
         : (state.currentStreak > 1
-          ? "You're on a " + state.currentStreak + "-day streak. Come back " + soon + " to keep it alive! Weekends are free — they won't break it."
+          ? "You're on a " + state.currentStreak + "-day streak. Come back " + soon + " to keep it going. Weekends are free; they won't break it."
           : "Come back " + soon + " for the next lesson and start building a streak.");
       cta.appendChild(el("p", "muted", msg));
     }
@@ -578,10 +605,10 @@
     if (state.currentStreak > 0 || state.freezeUsedDate) {
       var fz = el("p", "freeze-status muted small");
       if (freezeAvailable(state)) {
-        fz.textContent = "❄️ Streak freeze ready — one missed day won't break your streak.";
+        fz.textContent = "Streak freeze ready. One missed day won't break your streak.";
       } else {
         var dleft = daysUntilFreezeRefill(state);
-        fz.textContent = "❄️ Streak freeze used — refills in " + dleft + " day" + (dleft === 1 ? "" : "s") + ".";
+        fz.textContent = "Streak freeze used. Refills in " + dleft + " day" + (dleft === 1 ? "" : "s") + ".";
       }
       cta.appendChild(fz);
     }
@@ -683,7 +710,7 @@
       session.perfect = false;
       var fb2 = $("quiz-feedback");
       fb2.className = "feedback bad";
-      fb2.innerHTML = '<span class="verdict">Not quite — try again.</span>';
+      fb2.innerHTML = '<span class="verdict">Not quite. Try again.</span>';
     }
   }
 
@@ -707,12 +734,12 @@
         var p = pf.project;
         var phase = pf.isFirst ? "Kicking off" : (pf.isLast ? "Finale" : "Continuing");
         banner.innerHTML = "";
-        var em = el("span", "pb-emoji"); em.textContent = p.emoji;
+        var em = el("span", "pb-emoji", icon(projectIcon(p.id)));
         var txt = el("span", "pb-text");
         var strong = document.createElement("b");
         strong.textContent = "Project " + p.id + ": " + p.title;
         txt.appendChild(strong);
-        txt.appendChild(document.createTextNode(" — " + phase + " · day " + pf.index + " of " + pf.of));
+        txt.appendChild(document.createTextNode(" · " + phase + " · day " + pf.index + " of " + pf.of));
         banner.appendChild(em);
         banner.appendChild(txt);
         banner.classList.remove("hidden");
@@ -818,18 +845,18 @@
     { surface: "Chat", text: "Before sending an important message, ask Claude to “play devil's advocate.”" },
     { surface: "Chat", text: "Feed Claude a screenshot and ask it to pull the numbers or dates into a clean table." },
     { surface: "Cowork", text: "Kicking off a project? Ask Claude to break it into a step-by-step plan, then work the steps together." },
-    { surface: "Cowork", text: "After mapping out a plan, ask “what am I missing?” — Claude is great at catching the obvious gap." },
+    { surface: "Cowork", text: "After mapping out a plan, ask “what am I missing?” Claude is great at catching the obvious gap." },
     { surface: "Cowork", text: "At the end of a work session, ask Claude to summarize the decisions you made so you have a paper trail." },
     { surface: "Cowork", text: "Hand Claude a folder of reports and ask for a one-page summary you can forward to your boss." },
     { surface: "Code", text: "Save the instructions you repeat into a CLAUDE.md file so Claude remembers them every session." },
-    { surface: "Code", text: "Ask Claude Code to rename or reorganize a messy folder of files in one go — then review before approving." },
+    { surface: "Code", text: "Ask Claude Code to rename or reorganize a messy folder of files in one go, then review before approving." },
     { surface: "Code", text: "Run a one-off chore with <code>claude -p \"clean up this CSV\"</code> without starting a whole session." }
   ];
 
   function showResults(r) {
     lastResults = r;
-    $("results-emoji").innerHTML = r.replay ? "📖" : (r.perfect ? "🎯" : "🎉");
-    $("results-title").textContent = r.replay ? "Review complete" : "Day complete!";
+    $("results-emoji").innerHTML = icon(r.replay ? "bookOpen" : (r.perfect ? "target" : "check"));
+    $("results-title").textContent = r.replay ? "Review complete" : "Day complete";
     var bd = $("results-breakdown");
     bd.innerHTML = "";
     function row(label, val, cls) { var x = el("div", "row" + (cls ? " " + cls : "")); x.appendChild(el("span", null, label)); x.appendChild(el("span", null, val)); bd.appendChild(x); }
@@ -837,7 +864,7 @@
     if (r.replay) {
       row("Quiz (review)", r.quiz + " pts");
       row("Hands-on (review)", r.challenge + " pts");
-      row("Points earned", "0 — review mode", "total");
+      row("Points earned", "0, review mode", "total");
     } else {
       row("Quiz", "+" + r.quiz);
       row("Hands-on challenge", "+" + r.challenge);
@@ -848,7 +875,7 @@
     var badgeBox = $("results-badges");
     badgeBox.innerHTML = "";
     if (!r.replay && r.newBadges && r.newBadges.length) {
-      badgeBox.appendChild(el("div", "step-label", "New badge" + (r.newBadges.length > 1 ? "s" : "") + " unlocked!"));
+      badgeBox.appendChild(el("div", "step-label", "New badge" + (r.newBadges.length > 1 ? "s" : "") + " unlocked"));
       r.newBadges.forEach(function (b) { badgeBox.appendChild(el("span", "results-badge", b.emoji + " " + b.name)); });
     }
     var d = CURRICULUM[session.day - 1];
@@ -861,7 +888,7 @@
       if (!r.replay && pf && pf.isLast) {
         var p = pf.project;
         proj.innerHTML = "";
-        proj.appendChild(el("div", "rp-emoji", p.emoji + " 🎉"));
+        proj.appendChild(el("div", "rp-emoji", icon("award")));
         var h = el("div", "rp-title"); h.textContent = "Project " + p.id + " complete: " + p.title;
         proj.appendChild(h);
         var sub = el("div", "rp-sub"); sub.textContent = p.tagline;
@@ -869,8 +896,8 @@
         var nextP = PROJECTS[p.id]; // ids are 1-based, so index p.id is the next project
         var teaser = el("div", "rp-next");
         teaser.textContent = nextP
-          ? "Up next → Project " + nextP.id + ": " + nextP.title
-          : "🎓 All four projects shipped — you're a Claude Code black belt!";
+          ? "Up next: Project " + nextP.id + " (" + nextP.title + ")"
+          : "All three projects shipped. You're a Claude Code black belt.";
         proj.appendChild(teaser);
         proj.classList.remove("hidden");
       } else {
@@ -879,8 +906,8 @@
     }
 
     var feedbackEmail = "MaceeJB@gmail.com";
-    var subject = "Claude Quest — Day " + d.day + " (" + d.title + "): feedback";
-    var body = "Day " + d.day + " — " + d.title + "\n\n" +
+    var subject = "Claude Quest, Day " + d.day + " (" + d.title + "): feedback";
+    var body = "Day " + d.day + ": " + d.title + "\n\n" +
       "What would you improve? (lesson, quiz, a hands-on task, the capstone, or anything else)\n\n";
     $("results-suggest").href = "mailto:" + feedbackEmail +
       "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
@@ -901,15 +928,15 @@
         var ddDone = !!(ddRec && ddRec.deepDiveDone);
         var ddBtn = el("button", "btn dd-cta " + (ddDone ? "btn-ghost" : "btn-primary"));
         ddBtn.innerHTML = ddDone
-          ? "🔭 Revisit the deeper dive"
-          : "🔭 Go deeper on today's topic <span class=\"dd-pts\">+" + POINTS_DEEPDIVE + " pts</span>";
+          ? icon("compass") + " Revisit the deeper dive"
+          : icon("compass") + " Go deeper on today's topic <span class=\"dd-pts\">+" + POINTS_DEEPDIVE + " pts</span>";
         ddBtn.onclick = openDeepDive;
         ddBox.appendChild(ddBtn);
         if (ddDone) ddBox.appendChild(el("div", "dd-earned muted small", "✓ Bonus already earned"));
       }
     }
 
-    $("results-share").onclick = function () { copyToClipboard(buildShareText({ day: d.day, dayTitle: d.title }), this, "📣 Share my progress"); };
+    $("results-share").onclick = function () { copyToClipboard(buildShareText({ day: d.day, dayTitle: d.title }), this, "Share my progress"); };
     $("results-home").onclick = function () { renderHome(); show("screen-home"); };
     show("screen-results");
   }
@@ -954,13 +981,13 @@
       awardedNow = true;
     }
     var head = el("div", "dd-summary");
-    if (awardedNow) head.innerHTML = "🎉 <b>+" + POINTS_DEEPDIVE + " points</b> for going deeper on today's topic!";
-    else if (rec && rec.deepDiveDone) head.innerHTML = "✓ You already earned this day's bonus — nice review!";
-    else head.innerHTML = "Preview mode — no points awarded.";
+    if (awardedNow) head.innerHTML = "Bonus earned. <b>+" + POINTS_DEEPDIVE + " points</b> for going deeper on today's topic.";
+    else if (rec && rec.deepDiveDone) head.innerHTML = "You already earned this day's bonus. Nice review.";
+    else head.innerHTML = "Preview mode. No points awarded.";
     body.appendChild(head);
     if (newB.length) {
       var bb = el("div", "results-badges");
-      bb.appendChild(el("div", "step-label", "New badge" + (newB.length > 1 ? "s" : "") + " unlocked!"));
+      bb.appendChild(el("div", "step-label", "New badge" + (newB.length > 1 ? "s" : "") + " unlocked"));
       newB.forEach(function (b) { bb.appendChild(el("span", "results-badge", b.emoji + " " + b.name)); });
       body.appendChild(bb);
     }
@@ -991,7 +1018,7 @@
       if (state) renderHome();
     };
     $("share-progress").onclick = function () {
-      if (state) copyToClipboard(buildShareText(null), this, "📣 Share");
+      if (state) copyToClipboard(buildShareText(null), this, "Share");
     };
     $("sign-out").onclick = signOut;
     show("screen-profile");
