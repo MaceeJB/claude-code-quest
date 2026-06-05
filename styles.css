@@ -16,7 +16,7 @@
   --gold-bright: #ecc862;    /* slightly more vibrant, for earned badges */
   --radius: 14px;
   --shadow: 0 8px 30px rgba(0, 0, 0, 0.38);
-  --glass-blur: blur(16px) saturate(1.5);
+  --glass-blur: blur(15px) saturate(1.9) brightness(1.05);
   --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, Cambria, "Times New Roman", serif;
   --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
@@ -27,10 +27,11 @@ html, body {
   margin: 0;
   background-color: var(--bg);
   background-image:
-    radial-gradient(38% 46% at 12% 8%,  rgba(139, 120, 196, 0.45), transparent 62%),
-    radial-gradient(40% 48% at 88% 12%, rgba(188, 178, 218, 0.28), transparent 62%),
-    radial-gradient(48% 56% at 84% 90%, rgba(212, 184, 127, 0.20), transparent 62%),
-    radial-gradient(44% 54% at 14% 94%, rgba(126, 107, 176, 0.30), transparent 62%);
+    radial-gradient(44% 52% at 10% 4%,   rgba(150, 105, 235, 0.65), transparent 60%),
+    radial-gradient(46% 54% at 92% 8%,   rgba(110, 200, 235, 0.42), transparent 60%),
+    radial-gradient(54% 62% at 88% 94%,  rgba(230, 180, 105, 0.38), transparent 60%),
+    radial-gradient(50% 60% at 10% 98%,  rgba(160, 90, 225, 0.52), transparent 60%),
+    radial-gradient(40% 48% at 55% 45%,  rgba(120, 95, 200, 0.22), transparent 65%);
   background-attachment: fixed;
   background-repeat: no-repeat;
   color: var(--text);
