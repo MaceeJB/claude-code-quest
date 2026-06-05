@@ -14,6 +14,13 @@
   var POINTS_AFTER_MISS = 5;
   var POINTS_CHALLENGE = 5;
   var POINTS_DEEPDIVE = 10; // one-time bonus for finishing a day's "Go deeper" round
+  // Only the owner sees the "Preview all days" content-review tool: either the
+  // player whose name matches OWNER_NAME, or any device flagged via CCQ.owner().
+  var OWNER_NAME = "Macee";
+  function isOwner() {
+    return (!!profile && profile.toLowerCase() === OWNER_NAME.toLowerCase()) ||
+           localStorage.getItem("ccq:owner") === "1";
+  }
 
   // ===== Cross-device sync (Supabase) =====
   // These two values are PUBLIC and safe to ship in the page — the Row Level
@@ -428,6 +435,9 @@
 
     var pv = $("preview-toggle");
     if (pv) {
+      var owner = isOwner();
+      pv.classList.toggle("hidden", !owner);   // hidden for everyone but the owner
+      if (!owner) previewMode = false;          // never leave non-owners in preview mode
       pv.textContent = previewMode ? "Preview: ON" : "Preview all days";
       pv.classList.toggle("active", previewMode);
     }
@@ -1034,7 +1044,11 @@
     previewAll: function () { previewMode = true; if (state) { renderHome(); show("screen-home"); } return "Preview ON — every day tile is now clickable (review mode). Run CCQ.previewOff() to restore."; },
     previewOff: function () { previewMode = false; if (state) renderHome(); return "Preview OFF."; },
     // Jump straight into one day in review mode, e.g. CCQ.preview(7).
-    preview: function (n) { if (!state) return "Pick a player first."; if (n < 1 || n > TOTAL_DAYS) return "Day must be 1–" + TOTAL_DAYS + "."; beginDay(n, true); return "Previewing day " + n + " (review mode)."; }
+    preview: function (n) { if (!state) return "Pick a player first."; if (n < 1 || n > TOTAL_DAYS) return "Day must be 1–" + TOTAL_DAYS + "."; beginDay(n, true); return "Previewing day " + n + " (review mode)."; },
+    // Flag THIS device as the owner so the "Preview all days" button shows even
+    // if you're playing under a different name. CCQ.notOwner() turns it back off.
+    owner: function () { localStorage.setItem("ccq:owner", "1"); if (state) renderHome(); return "Owner mode ON for this device — the Preview button is now visible."; },
+    notOwner: function () { localStorage.removeItem("ccq:owner"); previewMode = false; if (state) renderHome(); return "Owner mode OFF for this device."; }
   };
 
   document.addEventListener("DOMContentLoaded", init);

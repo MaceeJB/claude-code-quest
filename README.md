@@ -160,6 +160,29 @@ The app calls this with `sb.rpc("team_stats", { p_today: <today> })` in `renderT
 (`app.js`). The progress bar's denominator is `players × 19` (each teammate can finish 19 days). To
 turn the panel off again, just `drop function public.team_stats(text);` — the app will hide it.
 
+### Resetting the team for a new cohort
+
+The team progress bar reflects every signed-in account's saved progress. Before a fresh cohort
+starts, clear out any test/old data so the numbers are accurate. In the Supabase **SQL Editor**:
+
+```sql
+delete from public.progress;       -- removes all saved progress (synced accounts)
+select count(*) from public.progress;  -- should return 0
+```
+
+This resets **everyone**, including your own synced account, and the 🤝 Team progress panel stays
+hidden until real teammates sign in and complete a lesson. Local-only ("just play on this device")
+progress isn't stored here, so it was never part of the team totals. ⚠️ This is permanent — only run
+it *before* a cohort begins, never mid-exercise.
+
+## Owner-only "Preview all days"
+
+The **Preview all days** content-review button (top-right of the home screen) is shown **only to the
+owner**, so teammates don't see or use it. "Owner" means the player whose name matches `OWNER_NAME`
+in `app.js` (currently `"Macee"`), or any device flagged by running `CCQ.owner()` in the browser
+console. Use `CCQ.notOwner()` to turn it back off. The console review commands (`CCQ.previewAll()`,
+`CCQ.previewOff()`, `CCQ.preview(n)`) still work regardless, as a maintainer backdoor.
+
 ## Files
 
 | File | Purpose |
@@ -174,12 +197,13 @@ turn the panel off again, just `drop function public.team_stats(text);` — the 
 Days 2–19 normally unlock one per calendar day, which makes it hard to review
 everything at once. Two tools help:
 
-- **Preview all days** — a button in the top-right of the home screen. Click it to
-  unlock every day immediately; each one opens in **review mode** (read the lesson,
-  take the quiz, see the hands-on tasks) with **no points awarded and no effect on
-  any streak**. Click again ("Preview: ON") to turn it off. This is safe to use on
-  the live site — it only affects your own view. (Console equivalents also exist:
-  `CCQ.previewAll()`, `CCQ.previewOff()`, and `CCQ.preview(n)` to jump to one day.)
+- **Preview all days** — a button in the top-right of the home screen (shown **only to
+  the owner**; see "Owner-only Preview all days" above). Click it to unlock every day
+  immediately; each one opens in **review mode** (read the lesson, take the quiz, see
+  the hands-on tasks) with **no points awarded and no effect on any streak**. Click
+  again ("Preview: ON") to turn it off. It only affects your own view. (Console
+  equivalents work for any maintainer regardless of the button: `CCQ.previewAll()`,
+  `CCQ.previewOff()`, and `CCQ.preview(n)` to jump to one day.)
 - **Suggest an improvement** — at the bottom of each day's results screen there's a
   "💡 Suggest an improvement for this day" link that opens a pre-filled email (to the
   address set in `app.js`, currently `MaceeJB@gmail.com`) with the day number already
