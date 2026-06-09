@@ -170,7 +170,7 @@
   function blankState(name) {
     return { name: name, totalPoints: 0, currentStreak: 0, longestStreak: 0,
       lastCompletedDate: null, startDate: null, freezeUsedDate: null,
-      perfectCount: 0, days: {}, badges: {}, verdictsUsed: [] };
+      perfectCount: 0, days: {}, badges: {}, verdictsUsed: [], activeDays: [] };
   }
   function key(name) { return "ccq:" + name; }
   // Backfill fields added after a player's state was first saved, so existing
@@ -181,6 +181,13 @@
       var done = completedCount(s);
       // Treat existing players as exactly on-pace today so nothing locks behind them.
       s.startDate = done > 0 ? addDays(today(), -(done - 1)) : null;
+    }
+    if (s.activeDays === undefined) {
+      // Seed activity dates from existing completions so the team streak has history.
+      var set = {};
+      for (var k in s.days) { if (s.days[k] && s.days[k].date) set[s.days[k].date] = 1; }
+      if (s.lastCompletedDate) set[s.lastCompletedDate] = 1;
+      s.activeDays = Object.keys(set);
     }
     return s;
   }
@@ -488,6 +495,10 @@
       track.appendChild(fill);
       box.appendChild(track);
       box.appendChild(el("div", "team-line", "<b>" + lessons + "</b> of " + max + " lessons completed together"));
+      var teamStreak = d.team_streak || 0;
+      if (teamStreak > 0) {
+        box.appendChild(el("div", "team-line", "🔥 <b>" + teamStreak + "-day</b> team streak"));
+      }
       box.appendChild(el("div", "team-line muted", playedToday + " of " + players + " teammate" + (players === 1 ? "" : "s") + " played today"));
       box.classList.remove("hidden");
     }, function () { box.classList.add("hidden"); });
@@ -788,18 +799,10 @@
     $("challenge-finish").onclick = finishDay;
   }
 
-  function finishDay() {
-    var d = CURRICULUM[session.day - 1];
-    var challengePoints = session.checks.filter(Boolean).length * POINTS_CHALLENGE;
-    var base = session.quizPoints + challengePoints;
-
-    if (session.replay) {
-      showResults({ replay: true, quiz: session.quizPoints, challenge: challengePoints });
-      return;
-    }
-
-    // advance streak for a real (first-time) completion
-    var t = today();
+  // Register a daily check-in: advance the streak (rest days bridged, one freeze
+  // allowed), stamp lastCompletedDate, and record today's date for the team streak.
+  // Used by both first-time completions AND replays of already-completed days.
+  function registerCheckIn(t) {
     if (!state.startDate) state.startDate = t; // anchor this player's daily pace
     var last = state.lastCompletedDate;
     if (last === t) {
@@ -819,13 +822,34 @@
       }
     }
     state.longestStreak = Math.max(state.longestStreak, state.currentStreak);
+    state.lastCompletedDate = t;
+    if (!state.activeDays) state.activeDays = [];
+    if (state.activeDays.indexOf(t) === -1) state.activeDays.push(t); // for the team streak
+  }
 
+  function finishDay() {
+    var d = CURRICULUM[session.day - 1];
+    var challengePoints = session.checks.filter(Boolean).length * POINTS_CHALLENGE;
+    var base = session.quizPoints + challengePoints;
+    var t = today();
+
+    if (session.replay) {
+      // A replay of a genuinely completed day still counts as showing up today
+      // (keeps the streak alive + team activity), but earns no points and doesn't
+      // change the day's saved record. Preview mode never counts.
+      var rec = state.days[d.day];
+      if (!previewMode && rec && rec.completed) { registerCheckIn(t); save(); }
+      showResults({ replay: true, quiz: session.quizPoints, challenge: challengePoints });
+      return;
+    }
+
+    // First-time completion: check in (advances streak), then award points.
+    registerCheckIn(t);
     var multiplier = 1 + Math.min(state.currentStreak - 1, 9) * 0.1;
     var streakBonus = Math.round(base * multiplier) - base;
     var dayScore = base + streakBonus;
 
     state.totalPoints += dayScore;
-    state.lastCompletedDate = t;
     if (session.perfect) state.perfectCount += 1;
     state.days[d.day] = { completed: true, score: dayScore, perfect: session.perfect, date: t };
 

@@ -136,29 +136,71 @@ In the Supabase **SQL Editor**, run this once. It creates a function that return
 ```sql
 create or replace function public.team_stats(p_today text)
 returns json
-language sql
+language plpgsql
 security definer
 set search_path = public
 as $$
-  select json_build_object(
-    'players',      count(*),
-    'lessons',      coalesce(sum(done.cnt), 0),
-    'played_today', coalesce(sum(case when data->>'lastCompletedDate' = p_today then 1 else 0 end), 0)
-  )
+declare
+  v_players      int;
+  v_lessons      int;
+  v_played_today int;
+  v_today        date := p_today::date;
+  v_dates        date[];
+  v_holidays     date[] := array['2026-06-19','2026-07-03']::date[]; -- match REST_HOLIDAYS in app.js
+  v_streak       int := 0;
+  cur            date;
+begin
+  select count(*) into v_players from public.progress;
+
+  select coalesce(sum(done.cnt), 0) into v_lessons
   from public.progress p
   left join lateral (
     select count(*) as cnt
     from jsonb_each(coalesce(p.data->'days', '{}'::jsonb)) e
     where (e.value->>'completed') = 'true'
   ) done on true;
+
+  select coalesce(sum(case when data->>'lastCompletedDate' = p_today then 1 else 0 end), 0)
+  into v_played_today from public.progress;
+
+  -- every date any teammate was active (filled by the app's activeDays)
+  select array_agg(distinct ad::date) into v_dates
+  from public.progress p,
+       jsonb_array_elements_text(coalesce(p.data->'activeDays', '[]'::jsonb)) as ad;
+
+  -- team streak: consecutive active days (weekends + holidays bridged) with team activity
+  if v_dates is not null then
+    cur := v_today;
+    while extract(dow from cur)::int in (0,6) or cur = any(v_holidays) loop cur := cur - 1; end loop;
+    if not (cur = any(v_dates)) then            -- today not done yet: don't count it as a break
+      cur := cur - 1;
+      while extract(dow from cur)::int in (0,6) or cur = any(v_holidays) loop cur := cur - 1; end loop;
+    end if;
+    while cur = any(v_dates) loop
+      v_streak := v_streak + 1;
+      cur := cur - 1;
+      while extract(dow from cur)::int in (0,6) or cur = any(v_holidays) loop cur := cur - 1; end loop;
+    end loop;
+  end if;
+
+  return json_build_object(
+    'players',      v_players,
+    'lessons',      v_lessons,
+    'played_today', v_played_today,
+    'team_streak',  v_streak
+  );
+end;
 $$;
 
 grant execute on function public.team_stats(text) to anon, authenticated;
 ```
 
 The app calls this with `sb.rpc("team_stats", { p_today: <today> })` in `renderTeamProgress()`
-(`app.js`). The progress bar's denominator is `players × 19` (each teammate can finish 19 days). To
-turn the panel off again, just `drop function public.team_stats(text);` — the app will hide it.
+(`app.js`). The progress bar's denominator is `players × 19` (each teammate can finish 19 days). The
+**team streak** counts consecutive active days (weekdays, with the holidays bridged like personal
+streaks) on which at least one signed-in teammate completed any day — including replays of days they'd
+already finished, since the app records every completion in `activeDays`. To turn the panel off again,
+just `drop function public.team_stats(text);` — the app will hide it.
 
 ### Resetting the team for a new cohort
 
